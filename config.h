@@ -12,5 +12,7 @@ static const char *colorname[NUMCOLS] = {
 /* treat a cleared input like a wrong password (color) */
 static const int failonclear = 1;
 
-/* PAM service that's used for authentication */
-static const char* pam_service = "login";
+/* PAM service that's used for authentication
+ * - preconfigured for Gentoo
+ **/
+static const char* pam_service = "system-auth";
