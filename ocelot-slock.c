@@ -101,15 +101,15 @@ dontkillme(void)
 	if (!(f = fopen(oomfile, "w"))) {
 		if (errno == ENOENT)
 			return;
-		die("slock: fopen %s: %s\n", oomfile, strerror(errno));
+		die("ocelot-slock: fopen %s: %s\n", oomfile, strerror(errno));
 	}
 	fprintf(f, "%d", OOM_SCORE_ADJ_MIN);
 	if (fclose(f)) {
 		if (errno == EACCES)
-			die("slock: unable to disable OOM killer. "
-			    "Make sure to suid or sgid slock.\n");
+			die("ocelot-slock: unable to disable OOM killer. "
+			    "Make sure to suid or sgid ocelot-slock.\n");
 		else
-			die("slock: fclose %s: %s\n", oomfile, strerror(errno));
+			die("ocelot-slock: fclose %s: %s\n", oomfile, strerror(errno));
 	}
 }
 #endif
@@ -124,9 +124,9 @@ gethash(void)
 	errno = 0;
 	if (!(pw = getpwuid(getuid()))) {
 		if (errno)
-			die("slock: getpwuid: %s\n", strerror(errno));
+			die("ocelot-slock: getpwuid: %s\n", strerror(errno));
 		else
-			die("slock: cannot retrieve password entry\n");
+			die("ocelot-slock: cannot retrieve password entry\n");
 	}
 	hash = pw->pw_passwd;
 
@@ -134,20 +134,20 @@ gethash(void)
 	if (!strcmp(hash, "x")) {
 		struct spwd *sp;
 		if (!(sp = getspnam(pw->pw_name)))
-			die("slock: getspnam: cannot retrieve shadow entry. "
-			    "Make sure to suid or sgid slock.\n");
+			die("ocelot-slock: getspnam: cannot retrieve shadow entry. "
+			    "Make sure to suid or sgid ocelot-slock.\n");
 		hash = sp->sp_pwdp;
 	}
 #else
 	if (!strcmp(hash, "*")) {
 #ifdef __OpenBSD__
 		if (!(pw = getpwuid_shadow(getuid())))
-			die("slock: getpwnam_shadow: cannot retrieve shadow entry. "
-			    "Make sure to suid or sgid slock.\n");
+			die("ocelot-slock: getpwnam_shadow: cannot retrieve shadow entry. "
+			    "Make sure to suid or sgid ocelot-slock.\n");
 		hash = pw->pw_passwd;
 #else
-		die("slock: getpwuid: cannot retrieve shadow entry. "
-		    "Make sure to suid or sgid slock.\n");
+		die("ocelot-slock: getpwuid: cannot retrieve shadow entry. "
+		    "Make sure to suid or sgid ocelot-slock.\n");
 #endif /* __OpenBSD__ */
 	}
 #endif /* HAVE_SHADOW_H */
@@ -212,7 +212,7 @@ readpw(Display *dpy, struct xrandr *rr, struct lock **locks, int nscreens,
 				if (retval == PAM_SUCCESS)
 					running = 0;
 				else
-					fprintf(stderr, "slock: %s\n", pam_strerror(pamh, retval));
+					fprintf(stderr, "ocelot-slock: %s\n", pam_strerror(pamh, retval));
 				pam_end(pamh, retval);
 				if (running) {
 					XBell(dpy, 100);
@@ -339,10 +339,10 @@ lockscreen(Display *dpy, struct xrandr *rr, int screen)
 
 	/* we couldn't grab all input: fail out */
 	if (ptgrab != GrabSuccess)
-		fprintf(stderr, "slock: unable to grab mouse pointer for screen %d\n",
+		fprintf(stderr, "ocelot-slock: unable to grab mouse pointer for screen %d\n",
 		        screen);
 	if (kbgrab != GrabSuccess)
-		fprintf(stderr, "slock: unable to grab keyboard for screen %d\n",
+		fprintf(stderr, "ocelot-slock: unable to grab keyboard for screen %d\n",
 		        screen);
 	return NULL;
 }
@@ -350,7 +350,7 @@ lockscreen(Display *dpy, struct xrandr *rr, int screen)
 static void
 usage(void)
 {
-	die("usage: slock [-v] [cmd [arg ...]]\n");
+	die("usage: ocelot-slock [-v] [cmd [arg ...]]\n");
 }
 
 int
@@ -367,7 +367,7 @@ main(int argc, char **argv) {
 
 	ARGBEGIN {
 	case 'v':
-		fprintf(stderr, "slock-"VERSION"\n");
+		fprintf(stderr, "ocelot-slock-"VERSION"\n");
 		return 0;
 	default:
 		usage();
@@ -376,12 +376,12 @@ main(int argc, char **argv) {
 	/* validate drop-user and -group */
 	errno = 0;
 	if (!(pwd = getpwnam(user)))
-		die("slock: getpwnam %s: %s\n", user,
+		die("ocelot-slock: getpwnam %s: %s\n", user,
 		    errno ? strerror(errno) : "user entry not found");
 	duid = pwd->pw_uid;
 	errno = 0;
 	if (!(grp = getgrnam(group)))
-		die("slock: getgrnam %s: %s\n", group,
+		die("ocelot-slock: getgrnam %s: %s\n", group,
 		    errno ? strerror(errno) : "group entry not found");
 	dgid = grp->gr_gid;
 
@@ -394,15 +394,15 @@ main(int argc, char **argv) {
 	errno = 0;
 
 	if (!(dpy = XOpenDisplay(NULL)))
-		die("slock: cannot open display\n");
+		die("ocelot-slock: cannot open display\n");
 
 	/* drop privileges */
 	if (setgroups(0, NULL) < 0)
-		die("slock: setgroups: %s\n", strerror(errno));
+		die("ocelot-slock: setgroups: %s\n", strerror(errno));
 	if (setgid(dgid) < 0)
-		die("slock: setgid: %s\n", strerror(errno));
+		die("ocelot-slock: setgid: %s\n", strerror(errno));
 	if (setuid(duid) < 0)
-		die("slock: setuid: %s\n", strerror(errno));
+		die("ocelot-slock: setuid: %s\n", strerror(errno));
 
 	/* check for Xrandr support */
 	rr.active = XRRQueryExtension(dpy, &rr.evbase, &rr.errbase);
@@ -410,7 +410,7 @@ main(int argc, char **argv) {
 	/* get number of screens in display "dpy" and blank them */
 	nscreens = ScreenCount(dpy);
 	if (!(locks = calloc(nscreens, sizeof(struct lock *))))
-		die("slock: out of memory\n");
+		die("ocelot-slock: out of memory\n");
 	for (nlocks = 0, s = 0; s < nscreens; s++) {
 		if ((locks[s] = lockscreen(dpy, &rr, s)) != NULL)
 			nlocks++;
@@ -427,12 +427,12 @@ main(int argc, char **argv) {
 	if (argc > 0) {
 		switch (fork()) {
 		case -1:
-			die("slock: fork failed: %s\n", strerror(errno));
+			die("ocelot-slock: fork failed: %s\n", strerror(errno));
 		case 0:
 			if (close(ConnectionNumber(dpy)) < 0)
-				die("slock: close: %s\n", strerror(errno));
+				die("ocelot-slock: close: %s\n", strerror(errno));
 			execvp(argv[0], argv);
-			fprintf(stderr, "slock: execvp %s: %s\n", argv[0], strerror(errno));
+			fprintf(stderr, "ocelot-slock: execvp %s: %s\n", argv[0], strerror(errno));
 			_exit(1);
 		}
 	}
