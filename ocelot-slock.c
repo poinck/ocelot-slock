@@ -205,6 +205,7 @@ readpw(Display *dpy, struct xrandr *rr, struct lock **locks, int nscreens,
 				passwd[len] = '\0';
 				errno = 0;
 				retval = pam_start(pam_service, hash, &pamc, &pamh);
+                debug("start: %d\n", retval);
                 debug("service %s\n", pam_service);
 				color = PAM;
 				for (screen = 0; screen < nscreens; screen++) {
@@ -214,10 +215,17 @@ readpw(Display *dpy, struct xrandr *rr, struct lock **locks, int nscreens,
 				}
 				XSync(dpy, False);
 
+                debug("PAM_SUCCESS=%d\n", PAM_SUCCESS);
+
 				if (retval == PAM_SUCCESS)
 					retval = pam_authenticate(pamh, 0);
+
+                debug("auth: %d\n", retval);
+
 				if (retval == PAM_SUCCESS)
 					retval = pam_acct_mgmt(pamh, 0);
+
+                debug("acct_mgmt: %d\n", retval);
 
 				running = 1;
 				if (retval == PAM_SUCCESS)
