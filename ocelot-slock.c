@@ -63,12 +63,22 @@ die(const char *errstr, ...)
 	exit(1);
 }
 
+static void debug(const char *debugstr, ...) {
+	va_list ap;
+
+	va_start(ap, debugstr);
+	vfprintf(stderr, debugstr, ap);
+	va_end(ap);
+}
+
 static int
 pam_conv(int num_msg, const struct pam_message **msg,
 		struct pam_response **resp, void *appdata_ptr)
 {
+    debug("i am at pam_conv()\n");
 	int retval = PAM_CONV_ERR;
 	for(int i=0; i<num_msg; i++) {
+        debug("%s\n", msg[i]->msg);
 		if (msg[i]->msg_style == PAM_PROMPT_ECHO_OFF &&
 				strncmp(msg[i]->msg, "Password: ", 10) == 0) {
 			struct pam_response *resp_msg = malloc(sizeof(struct pam_response));
@@ -195,6 +205,7 @@ readpw(Display *dpy, struct xrandr *rr, struct lock **locks, int nscreens,
 				passwd[len] = '\0';
 				errno = 0;
 				retval = pam_start(pam_service, hash, &pamc, &pamh);
+                debug("service %s\n", pam_service);
 				color = PAM;
 				for (screen = 0; screen < nscreens; screen++) {
 					XSetWindowBackground(dpy, locks[screen]->win, locks[screen]->colors[color]);
