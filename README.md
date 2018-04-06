@@ -11,7 +11,7 @@
 
 ## Install
 - edit config.h to customize colors and set pam-service
-- edit config.mk to match your local setup (oceloet-slock is installed into the /usr/local namespace by default).
+- edit config.mk to match your local setup (ocelot-slock is installed into the /usr/local namespace by default).
 - afterwards enter the following command to build and install slock (as root):
 
 ```.sh
